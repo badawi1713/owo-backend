@@ -5,6 +5,8 @@ const fileUpload = require("../../middlewares/fileUpload");
 
 router.get("/", userController.getUsersData);
 
+router.post("/register", userController.register);
+
 router.patch(
   "/edit-account/:userID",
   fileUpload.single("profileImage"),

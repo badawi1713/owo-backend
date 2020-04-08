@@ -2,7 +2,9 @@ require("dotenv").config();
 const userModel = require("../models/userModel");
 const helper = require("../helpers/response");
 const fs = require("fs");
+const path = require("path");
 const moment = require("moment");
+const qrcode = require("qrcode");
 
 exports.getUsersData = (req, res, next) => {
   userModel
@@ -17,23 +19,36 @@ exports.getUsersData = (req, res, next) => {
     });
 };
 
-exports.register = (req, res, next) => {
+exports.register = async (req, res, next) => {
   const registeredAt = moment(new Date(Date.now())).format(
     "DD-MM-YYYY, HH:mm:ss"
   );
+
+  const fullname = req.body.fullname;
+  const email = req.body.email;
+  const pinNumber = req.body.pinNumber;
+  const phoneNumber = await req.body.phoneNumber;
+  const profileImage =
+    "https://oasys.ch/wp-content/uploads/2019/03/photo-avatar-profil.png";
+  const balance = 0;
+  const qrImage = await qrcode.toDataURL(phoneNumber);
   const data = {
-    fullname: req.body.fullname,
-    phoneNumber: req.body.phoneNumber,
-    email: req.body.email,
+    fullname: fullname,
+    email: email,
+    pinNumber: pinNumber,
+    phoneNumber: phoneNumber,
+    profileImage: profileImage,
+    balance: balance,
+    qrImage: qrImage,
     registeredAt: registeredAt,
   };
-  console.log("Phone number", data.phoneNumber);
   userModel
     .getAllUser()
     .then((result) => {
       userModel
         .register(data)
         .then((data) => {
+          console.log(data);
           helper.response(
             res,
             "New user has been registered",
