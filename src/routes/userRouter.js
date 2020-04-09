@@ -5,7 +5,7 @@ const fileUpload = require("../../middlewares/fileUpload");
 
 router.get("/", userController.getUsersData);
 
-router.post("/register", userController.register);
+router.get("/:userID", userController.getUserDataByID);
 
 router.patch(
   "/edit-account/:userID",

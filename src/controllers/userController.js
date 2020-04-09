@@ -2,9 +2,8 @@ require("dotenv").config();
 const userModel = require("../models/userModel");
 const helper = require("../helpers/response");
 const fs = require("fs");
-const path = require("path");
+// const path = require("path");
 const moment = require("moment");
-const qrcode = require("qrcode");
 
 exports.getUsersData = (req, res, next) => {
   userModel
@@ -19,53 +18,18 @@ exports.getUsersData = (req, res, next) => {
     });
 };
 
-exports.register = async (req, res, next) => {
-  const registeredAt = moment(new Date(Date.now())).format(
-    "DD-MM-YYYY, HH:mm:ss"
-  );
+exports.getUserDataByID = (req, res, next) => {
+  const userID = req.params.userID;
 
-  const fullname = req.body.fullname;
-  const email = req.body.email;
-  const pinNumber = req.body.pinNumber;
-  const phoneNumber = await req.body.phoneNumber;
-  const profileImage =
-    "https://oasys.ch/wp-content/uploads/2019/03/photo-avatar-profil.png";
-  const balance = 0;
-  const qrImage = await qrcode.toDataURL(phoneNumber);
-  const data = {
-    fullname: fullname,
-    email: email,
-    pinNumber: pinNumber,
-    phoneNumber: phoneNumber,
-    profileImage: profileImage,
-    balance: balance,
-    qrImage: qrImage,
-    registeredAt: registeredAt,
-  };
   userModel
-    .getAllUser()
-    .then((result) => {
-      userModel
-        .register(data)
-        .then((data) => {
-          console.log(data);
-          helper.response(
-            res,
-            "New user has been registered",
-            data,
-            201,
-            false
-          );
-          console.log("New user has been registered");
-        })
-        .catch((error) => {
-          console.log(error);
-          helper.response(res, "Email has been registered", error, 409, true);
-        });
+    .getUserByID(userID)
+    .then((data) => {
+      console.log(data);
+      helper.response(res, `User profile with id: ${userID}`, data, 200, false);
     })
     .catch((error) => {
       console.log(error);
-      helper.response(res, "Something went wrong", error, 400, true);
+      helper.response(res, "User data is not found", error, 404, true);
     });
 };
 

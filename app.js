@@ -44,10 +44,12 @@ app.use((error, req, res, next) => {
 const userRouter = require("./src/routes/userRouter");
 const transactionRouter = require("./src/routes/transactionRouter");
 const historyRouter = require("./src/routes/historyRouter");
+const authRouter = require("./src/routes/authRouter");
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/transactions", transactionRouter);
 app.use("/api/v1/history", historyRouter);
+app.use("/api/v1/", authRouter);
 
 app.listen(port, () => {
   console.log("Server run on port 3003");
