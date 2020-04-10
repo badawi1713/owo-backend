@@ -2,7 +2,7 @@ require("dotenv").config();
 const userModel = require("../models/userModel");
 const helper = require("../helpers/response");
 const fs = require("fs");
-// const path = require("path");
+const path = require("path");
 const moment = require("moment");
 
 exports.getUsersData = (req, res, next) => {
@@ -33,47 +33,64 @@ exports.getUserDataByID = (req, res, next) => {
     });
 };
 
+exports.patchUserProfileImage = (req, res, next) => {
+  const userID = req.params.userID;
+  const newProfileImage = req.file.path;
+  const updatedAt = moment(new Date(Date.now())).format("DD-MM-YYYY, HH:mm:ss");
+
+  userModel
+    .getUserByID(userID)
+    .then((data) => {
+      const getUserData = data[0];
+      // if (!req.file) {
+      //   helper.response(res, "Please upload a image file!", null, 404, true);
+      // } else {
+      userModel
+        .updateUserAccount(newProfileImage, userID)
+        .then((data) => {
+          fs.unlink(getUserData.profileImage, (err) => {
+            console.log(err);
+          });
+          helper.response(res, "Profile user is updated", data, 200, false);
+        })
+        .catch((error) => {
+          console.log(error);
+          helper.response(res, "Something went wrong", error, 400, true);
+        });
+      // }
+    })
+    .catch((error) => {
+      console.log(error);
+      helper.response(res, "Something went wrong", error, 400, true);
+    });
+};
+
 exports.patchEditUserAccount = (req, res, next) => {
   const userID = req.params.userID;
   const fullname = req.body.fullname;
   const email = req.body.email;
   const phoneNumber = req.body.phoneNumber;
-  const profileImage = req.file.path;
   const updatedAt = moment(new Date(Date.now())).format("DD-MM-YYYY, HH:mm:ss");
   const updateData = {
     fullname: fullname,
     email: email,
     phoneNumber: phoneNumber,
-    profileImage: profileImage,
     updatedAt: updatedAt,
   };
-  // console.log("image", profileImage);
+
   userModel
-    .getUserByID(userID)
+    .updateUserAccount(updateData, userID)
     .then((data) => {
-      const getUserData = data[0];
-      if (!req.file) {
-        helper.response(res, "Please upload a image file!", null, 404, true);
-      } else {
-        userModel
-          .updateUserAccount(updateData, userID)
-          .then((data) => {
-            fs.unlink(getUserData.profileImage, (err) => {
-              console.log(err);
-            });
-            helper.response(
-              res,
-              "Update user account is successful",
-              data,
-              200,
-              false
-            );
-          })
-          .catch((error) => {
-            console.log(error);
-            helper.response(res, "Something went wrong", error, 400, true);
-          });
-      }
+      fs.unlink(getUserData.profileImage, (err) => {
+        console.log(err);
+      });
+      helper.response(
+        res,
+        "Update user account is successful",
+        data,
+        200,
+        false
+      );
     })
     .catch((error) => {
       console.log(error);

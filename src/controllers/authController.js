@@ -12,7 +12,7 @@ const qrcode = require("qrcode");
 //   sendGridTransport({
 //     auth: {
 //       api_key:
-//         "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",
+//         API_KEY,
 //     },
 //   })
 // );

@@ -1,4 +1,5 @@
 require("dotenv").config();
+const uuid = require("uuid/v1");
 const transactionModel = require("../models/transactionModel");
 const historyModel = require("../models/historyModel");
 const userModel = require("../models/userModel");
@@ -13,8 +14,11 @@ exports.postNewTransaction = (req, res, next) => {
   const receiverPhoneNumber = req.body.receiverPhoneNumber;
   const transactionAmount = Number(req.body.transactionAmount);
   const transactionMessage = req.body.transactionMessage;
+  const transactionReceipt = "TRF-" + uuid();
   const transactionDate = moment(new Date(Date.now())).format("DD-MM-YYYY");
   const transactionTime = moment(new Date(Date.now())).format("HH:mm:ss");
+
+  const transactionFee = 2500;
 
   const transactionData = {
     senderID: senderID,
@@ -23,6 +27,7 @@ exports.postNewTransaction = (req, res, next) => {
     receiverPhoneNumber: receiverPhoneNumber,
     transactionAmount: transactionAmount,
     transactionMessage: transactionMessage,
+    transactionReceipt: transactionReceipt,
     transactionDate: transactionDate,
     transactionTime: transactionTime,
   };
@@ -53,6 +58,8 @@ exports.postNewTransaction = (req, res, next) => {
                 senderID: senderID,
                 receiverID: receiverID,
                 transactionAmount: transactionAmount,
+                transactionMessage: transactionMessage,
+                transactionReceipt: transactionReceipt,
                 transactionDate: transactionDate,
                 transactionTime: transactionTime,
               };
@@ -68,6 +75,8 @@ exports.postNewTransaction = (req, res, next) => {
                 senderID: transactionData.senderID,
                 receiverID: transactionData.receiverID,
                 transactionAmount: transactionData.transactionAmount,
+                transactionMessage: transactionData.transactionMessage,
+                transactionReceipt: transactionData.transactionReceipt,
                 transactionDate: transactionData.transactionDate,
                 transactionTime: transactionData.transactionTime,
               };
@@ -84,11 +93,17 @@ exports.postNewTransaction = (req, res, next) => {
               userModel
                 .getSenderUserBalance(senderID)
                 .then((data) => {
-                  const senderBalance = data[0].balance - transactionAmount;
+                  const senderBalance =
+                    data[0].balance - transactionAmount - transactionFee;
                   userModel
                     .updateSenderBalance(senderBalance, senderID)
                     .then((data) => {
-                      console.log("Sender balance Rp", senderBalance);
+                      console.log(
+                        "Sender balance Rp",
+                        senderBalance,
+                        "with transaction Fee Rp",
+                        transactionFee
+                      );
                     })
                     .catch((error) => {
                       console.log(error);
@@ -136,10 +151,10 @@ exports.updateUserBalance = (req, res, next) => {
       if (data.length < 1) {
         helper.response(res, "User data is not found", null, 404, true);
       } else {
-        if (topUpBalance < 20000) {
+        if (topUpBalance < 10000) {
           helper.response(
             res,
-            "Top up minimum amount is Rp 20000",
+            "Top up minimum amount is Rp 10000",
             null,
             400,
             true

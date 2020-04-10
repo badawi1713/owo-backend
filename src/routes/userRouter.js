@@ -8,10 +8,12 @@ router.get("/", userController.getUsersData);
 router.get("/:userID", userController.getUserDataByID);
 
 router.patch(
-  "/edit-account/:userID",
+  "/edit-profile-image/:userID",
   fileUpload.single("profileImage"),
-  userController.patchEditUserAccount
+  userController.patchUserProfileImage
 );
+
+router.patch("/edit-account/:userID", userController.patchEditUserAccount);
 
 router.patch("/pin-account/:userID", userController.patchUserPIN);
 
