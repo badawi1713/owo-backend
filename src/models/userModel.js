@@ -143,11 +143,11 @@ module.exports = {
       );
     });
   },
-  updateUserAccountProfileImage: (newProfileImage, userID) => {
+  updateUserAccountProfileImage: (profileImageUpdate, userID) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE users SET profileImage = ? WHERE userID = ?`,
-        [newProfileImage, userID],
+        `UPDATE users SET ? WHERE userID = ?`,
+        [profileImageUpdate, userID],
         (error, result) => {
           if (!error) {
             resolve(result);

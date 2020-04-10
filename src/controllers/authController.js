@@ -90,6 +90,12 @@ exports.register = async (req, res, next) => {
     });
 };
 
+// exports.checkUserPhoneNumber = (req, res, next) => {
+//   const phoneNumber = req.body.phoneNumber;
+
+//   userModel.getUserByPhoneNumber(phoneNumber).then().catch();
+// };
+
 exports.loginUser = (req, res, next) => {
   const phoneNumber = req.body.phoneNumber;
   const pinNumber = req.body.pinNumber;

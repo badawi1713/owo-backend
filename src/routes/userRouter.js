@@ -8,7 +8,7 @@ router.get("/", userController.getUsersData);
 router.get("/:userID", userController.getUserDataByID);
 
 router.patch(
-  "/edit-profile-image/:userID",
+  "/image-profile-account/:userID",
   fileUpload.single("profileImage"),
   userController.patchUserProfileImage
 );

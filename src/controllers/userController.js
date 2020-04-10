@@ -38,26 +38,31 @@ exports.patchUserProfileImage = (req, res, next) => {
   const newProfileImage = req.file.path;
   const updatedAt = moment(new Date(Date.now())).format("DD-MM-YYYY, HH:mm:ss");
 
+  const profileImageUpdate = {
+    profileImage: newProfileImage,
+    updatedAt: updatedAt,
+  };
+
   userModel
     .getUserByID(userID)
     .then((data) => {
       const getUserData = data[0];
-      // if (!req.file) {
-      //   helper.response(res, "Please upload a image file!", null, 404, true);
-      // } else {
-      userModel
-        .updateUserAccount(newProfileImage, userID)
-        .then((data) => {
-          fs.unlink(getUserData.profileImage, (err) => {
-            console.log(err);
+      if (!req.file) {
+        helper.response(res, "Please upload a image file!", null, 404, true);
+      } else {
+        userModel
+          .updateUserAccount(profileImageUpdate, userID)
+          .then((data) => {
+            fs.unlink(getUserData.profileImage, (error) => {
+              console.log(error);
+            });
+            helper.response(res, "Profile user is updated", data, 200, false);
+          })
+          .catch((error) => {
+            console.log(error);
+            helper.response(res, "Something went wrong", error, 400, true);
           });
-          helper.response(res, "Profile user is updated", data, 200, false);
-        })
-        .catch((error) => {
-          console.log(error);
-          helper.response(res, "Something went wrong", error, 400, true);
-        });
-      // }
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -81,9 +86,6 @@ exports.patchEditUserAccount = (req, res, next) => {
   userModel
     .updateUserAccount(updateData, userID)
     .then((data) => {
-      fs.unlink(getUserData.profileImage, (err) => {
-        console.log(err);
-      });
       helper.response(
         res,
         "Update user account is successful",
@@ -128,7 +130,7 @@ exports.deleteUserAccount = (req, res, next) => {
             helper.response(
               res,
               `User with id: ${userID} is not found`,
-              ["data is not found"],
+              null,
               404,
               true
             );

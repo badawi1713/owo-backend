@@ -13,10 +13,10 @@ exports.postNewTransaction = (req, res, next) => {
   const senderPhoneNumber = req.body.senderPhoneNumber;
   const receiverPhoneNumber = req.body.receiverPhoneNumber;
   const transactionAmount = Number(req.body.transactionAmount);
-  const transactionMessage = req.body.transactionMessage;
+  const transactionMessage = req.body.transactionMessage || "";
   const transactionReceipt = "TRF-" + uuid();
-  const transactionDate = moment(new Date(Date.now())).format("DD-MM-YYYY");
-  const transactionTime = moment(new Date(Date.now())).format("HH:mm:ss");
+  const transactionDate = moment(new Date(Date.now())).format("D MMM YYYY");
+  const transactionTime = moment(new Date(Date.now())).format("HH.mm");
 
   const transactionFee = 2500;
 
@@ -40,7 +40,11 @@ exports.postNewTransaction = (req, res, next) => {
       } else {
         const senderBalance = data[0].balance;
 
-        if (senderBalance < transactionAmount || transactionAmount < 10000) {
+        if (
+          senderBalance < transactionAmount ||
+          transactionAmount < 10000 ||
+          senderBalance < 12500
+        ) {
           helper.response(
             res,
             "Your balance is not enough to transfer",
@@ -98,12 +102,12 @@ exports.postNewTransaction = (req, res, next) => {
                   userModel
                     .updateSenderBalance(senderBalance, senderID)
                     .then((data) => {
-                      console.log(
-                        "Sender balance Rp",
-                        senderBalance,
-                        "with transaction Fee Rp",
-                        transactionFee
-                      );
+                      // console.log(
+                      //   "Sender balance Rp",
+                      //   senderBalance,
+                      //   "with transaction Fee Rp",
+                      //   transactionFee
+                      // );
                     })
                     .catch((error) => {
                       console.log(error);
