@@ -9,12 +9,12 @@ const qrcode = require("qrcode");
 // const sendGridTransport = require("nodemailer-sendgrid-transport");
 
 // const transporter = nodemailer.createTransport(
-//   sendGridTransport({
-//     auth: {
-//       api_key:
-//         API_KEY,
-//     },
-//   })
+// sendGridTransport({
+// auth: {
+// api_key:
+// API_KEY,
+// },
+// })
 // );
 
 exports.register = async (req, res, next) => {
@@ -24,26 +24,26 @@ exports.register = async (req, res, next) => {
   const updatedAt = moment(new Date(Date.now())).format("DD-MM-YYYY, HH:mm:ss");
   const fullname = req.body.fullname;
   const email = req.body.email;
-  const pinNumber = req.body.pinNumber;
+  const pinNumber = req.body.pinNumber || "";
   const phoneNumber = req.body.phoneNumber;
   const profileImage =
     "https://oasys.ch/wp-content/uploads/2019/03/photo-avatar-profil.png";
   const balance = 0;
 
-  const salt = helper.getRandomSalt(process.env.LENGTH_SALT);
-  const pinHash = helper.setPIN(pinNumber, salt);
+  // const salt = helper.getRandomSalt(process.env.LENGTH_SALT);
+  // const pinHash = helper.setPIN(pinNumber, salt);
 
   const userData = {
     fullname: fullname,
     email: email,
-    pinNumber: pinHash.pinHash,
+    pinNumber: "",
     phoneNumber: phoneNumber,
     profileImage: profileImage,
     balance: balance,
     qrImage: 1,
     registeredAt: registeredAt,
     updatedAt: updatedAt,
-    salt: pinHash.salt,
+    salt: "",
   };
 
   userModel
@@ -90,11 +90,24 @@ exports.register = async (req, res, next) => {
     });
 };
 
-// exports.checkUserPhoneNumber = (req, res, next) => {
-//   const phoneNumber = req.body.phoneNumber;
-
-//   userModel.getUserByPhoneNumber(phoneNumber).then().catch();
-// };
+exports.checkUserPhoneNumber = (req, res, next) => {
+  const phoneNumber = req.query.phoneNumber;
+  // console.log(phoneNumber);
+  userModel
+    .getUserByPhoneNumber(phoneNumber)
+    .then((data) => {
+      const userData = data[0];
+      if (data.length < 1) {
+        helper.response(res, "User not found found", null, 404, true);
+      } else {
+        console.log(data[0]);
+        helper.response(res, "User found", userData, 200, false);
+      }
+    })
+    .catch((error) => {
+      helper.response(res, "Something went wrong", error, 500, true);
+    });
+};
 
 exports.loginUser = (req, res, next) => {
   const phoneNumber = req.body.phoneNumber;

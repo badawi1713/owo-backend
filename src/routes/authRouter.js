@@ -5,6 +5,7 @@ const authController = require("../controllers/authController");
 
 require("dotenv").config();
 
+router.get("/check-phone-number", authController.checkUserPhoneNumber);
 router.post("/register", authController.register);
 router.post("/login", authController.loginUser);
 
