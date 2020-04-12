@@ -33,6 +33,22 @@ exports.getUserDataByID = (req, res, next) => {
     });
 };
 
+exports.getBalanceData = (req, res, next) => {
+  const userID = req.params.userID;
+
+  userModel
+    .getUserBalanceByID(userID)
+    .then((data) => {
+      console.log(data);
+      helper.response(res, `User balance with id: ${userID}`, data, 200, false);
+    })
+    .catch((error) => {
+      console.log(error);
+
+      helper.response(res, "User data is not found", error, 404, true);
+    });
+};
+
 exports.patchUserProfileImage = (req, res, next) => {
   const userID = req.params.userID;
   const newProfileImage = req.file.path;

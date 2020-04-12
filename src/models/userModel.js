@@ -53,6 +53,21 @@ module.exports = {
       );
     });
   },
+  getUserBalanceByID: (userID) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT balance FROM users WHERE userID = ?`,
+        [userID],
+        (error, result) => {
+          if (!error) {
+            resolve(result);
+          } else {
+            reject(new Error(error));
+          }
+        }
+      );
+    });
+  },
   getUserByPhoneNumber: (phoneNumber) => {
     return new Promise((resolve, reject) => {
       connection.query(
